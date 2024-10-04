@@ -21,7 +21,7 @@ export const publishConfirmTransferedDocuments = async (transactionId: string, t
           url: doc[0],
           key,
         };
-        const sent = channel.publish(exchange, rabbitMQConfig.routingKeys.transferDocuments, Buffer.from(JSON.stringify(message)),{ persistent: true });
+        const sent = channel.publish(exchange, rabbitMQConfig.routingKeys.confirmDocuments, Buffer.from(JSON.stringify(message)),{ persistent: true });
         if (!sent) {
           console.warn(`Message for transaction ${transactionId} could not be sent to exchange ${exchange}`);
         }
@@ -42,7 +42,7 @@ export const publishConfirmTransferedUser = async (transactionId: string, transf
   
     try {
       await channel.assertExchange(exchange, 'direct', { durable: true });
-      const sent = channel.publish(exchange, rabbitMQConfig.routingKeys.transferUser, Buffer.from(JSON.stringify(transferData)),{ persistent: true });
+      const sent = channel.publish(exchange, rabbitMQConfig.routingKeys.confirmUser, Buffer.from(JSON.stringify(transferData)),{ persistent: true });
       if (!sent) {
         console.warn(`Message for transaction ${transactionId} could not be sent to exchange ${exchange}`);
       }
