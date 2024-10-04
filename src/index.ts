@@ -13,7 +13,6 @@ const options: cors.CorsOptions = {
 };
 const port = process.env.PORT || 8080;
 const env = process.env.NODE_ENV || 'production';
-
 const app: Application = express();
 
 app.use(express.json({ limit: '20kb' }));
@@ -32,5 +31,5 @@ app.disable('x-powered-by');
 app.use('/', router);
 
 createServer(app).listen({ port }, () => {
-  console.log(`Documents microservice ready in port ${port}`);
+  console.log(`Interoperability microservice ready on port ${port}`);
 });
