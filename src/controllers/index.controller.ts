@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import response from '../utils/response';
 import transferSchema from '../schemas/transferCitizen';
-import { transferQueueSender } from '../services/index.services';
-import { saveTransferTransaction } from '../services/index.services';
+import { publishTransferDocuments, publishTransferUser, saveTransferTransaction  } from '../services/index.services';
 
 const healthcheck = async (_req: Request, res: Response) => {
   return response({
@@ -35,14 +34,14 @@ const transferCitizen = async (req: Request, res: Response) => {
   }
 
   try {
-    await transferQueueSender(doc.transactionId, result.data);
-    //TODO Sebas acá puede mandar el mensaje para el micro de usuarios
+    await publishTransferDocuments(doc.transactionId, result.data);
+    await publishTransferUser(doc.transactionId, result.data);
 
     return response({
       res,
       status: 200,
       error: false,
-      message: 'transferencia registrada con éxito',
+      message: 'Transferencia registrada con éxito',
     });
   } catch (error) {
     console.log(error);

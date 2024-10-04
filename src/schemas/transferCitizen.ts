@@ -4,7 +4,7 @@ const TransferCitizen = z.object({
   id: z.number(),
   citizenName: z.string(),
   citizenEmail: z.string(),
-  urlDocuments: z.record(z.array(z.string())),
+  Documents: z.record(z.array(z.string())),
   confirmationURL: z.string(),
 });
 
