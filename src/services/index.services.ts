@@ -20,7 +20,7 @@ export const transferQueueSender = async (transactionId: string, transferData: T
         const doc = transferData.urlDocuments[key];
         const message = {
           transactionId,
-          id: transferData.citizenEmail.trim().toLowerCase(),
+          id: transferData.id,
           url: doc[0],
           key,
         };
@@ -28,7 +28,7 @@ export const transferQueueSender = async (transactionId: string, transferData: T
       }
     }
   } catch (error) {
-    console.log(error);
+    console.log('Error when sending messages', error);
     throw error;
   } finally {
     await channel.close();
