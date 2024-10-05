@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import axios from 'axios';
 import response from '../utils/response';
 import transferSchema from '../schemas/transferCitizen';
 import { saveTransferTransaction  } from '../services/index.services';
@@ -25,6 +26,16 @@ const transferCitizen = async (req: Request, res: Response) => {
     });
   }
 
+  try {
+    await validateUserNotRegistered(result.data.id);
+  } catch (error) {
+    return response({
+      res,
+      status: 400,
+      error: true,
+      message: error.message,
+    });
+  }
 
   try {
     await publishTransferUser(result.data);
@@ -87,6 +98,22 @@ const confirmTransfer = async (req: Request, res: Response) => {
     });
   }
 };
+
+const validateUserNotRegistered = async (userId: number): Promise<void> =>{
+  try {
+    const response = await axios.get(`https://govcarpeta-apis-83e1c996379d.herokuapp.com/apis/validateCitizen/${userId}`);
+    
+    if (response.status === 200) {
+      throw new Error("User still registered in govCarpeta");
+    } else if (response.status === 204) {
+      return;
+    } else {
+      throw new Error(`Failed request of confirmation for user ${userId}. Reason: ${JSON.stringify(response.data)}`);
+    }
+  } catch (error) {
+    throw new Error(`Error during the request: ${error.message}`);
+  }
+}
 
 const documentController = {
   healthcheck,
