@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interoperability
+  labels:
+    app: interoperability
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: interoperability
+  template:
+    metadata:
+      labels:
+        app: interoperability
+    spec:
+      containers:
+        - name: interoperability
+          image: interoperability:latest # Reemplazar con la imagen de tu contenedor
+          env:
+            # Variables de entorno para Firebase
+            - name: FIREBASE_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: firebase-credentials
+                  key: firebase_project_id
+            - name: FIREBASE_CLIENT_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: firebase-credentials
+                  key: firebase_client_email
+            - name: FIREBASE_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: firebase-credentials
+                  key: firebase_private_key
+
+            # Variables de entorno para RabbitMQ
+            - name: AMQP_URL
+              value: "amqp://production-rabbitmqcluster:5672"
+            - name: TRANSFER_EXCHANGE
+              value: "receive_transfer_exchange"
+            - name: CONFIRM_EXCHANGE
+              value: "confirm_transfer_exchange"
+            - name: TRANSFER_DOCUMENTS_ROUTING_KEY
+              value: "transfer.documents"
+            - name: TRANSFER_USER_ROUTING_KEY
+              value: "transfer.user"
+            - name: CONFIRM_DOCUMENTS_ROUTING_KEY
+              value: "confirm.documents"
+            - name: CONFIRM_USER_ROUTING_KEY
+              value: "confirm.user"
+          ports:
+            - containerPort: 4000 # Puerto donde escucha la aplicación
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: interoperability
+  labels:
+    app: interoperability
+spec:
+  selector:
+    app: interoperability
+  ports:
+    - name: http
+      protocol: TCP
+      port: 4000
+      targetPort: 4000
+  type: ClusterIP
