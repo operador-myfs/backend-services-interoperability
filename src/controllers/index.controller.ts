@@ -25,18 +25,9 @@ const transferCitizen = async (req: Request, res: Response) => {
     });
   }
 
-  const { success, message, doc } = await saveTransferTransaction(result.data);
-  if (!success) {
-    return response({
-      res,
-      status: 500,
-      error: true,
-      message: message,
-    });
-  }
 
   try {
-    await publishTransferUser(doc.transactionId, result.data);
+    await publishTransferUser(result.data);
 
     return response({
       res,
