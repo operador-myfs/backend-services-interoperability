@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import response from '../utils/response';
 import transferSchema from '../schemas/transferCitizen';
-import { saveTransferTransaction  } from '../services/index.services';
+import { saveTransferTransaction } from '../services/index.services';
 import { publishTransferUser } from '../services/transfer.services';
-import { publishConfirmTransferedDocuments, publishConfirmTransferedUser  } from '../services/confirm.services';
+import { publishConfirmTransferedDocuments, publishConfirmTransferedUser } from '../services/confirm.services';
 
 const healthcheck = async (_req: Request, res: Response) => {
   return response({
@@ -58,29 +58,19 @@ const transferCitizen = async (req: Request, res: Response) => {
 };
 
 const confirmTransfer = async (req: Request, res: Response) => {
-  const result = transferSchema.validateTransfer(req.body);
-  if (result.success === false) {
+  const id = req.body.id;
+  if (typeof id !== 'number') {
     return response({
       res,
       status: 400,
       error: true,
-      message: JSON.parse(result.error.message),
-    });
-  }
-
-  const { success, message, doc } = await saveTransferTransaction(result.data);
-  if (!success) {
-    return response({
-      res,
-      status: 500,
-      error: true,
-      message: message,
+      message: 'Formato de solicitud incorrecto',
     });
   }
 
   try {
-    await publishConfirmTransferedDocuments(doc.transactionId, result.data);
-    await publishConfirmTransferedUser(doc.transactionId, result.data);
+    await publishConfirmTransferedDocuments(id);
+    await publishConfirmTransferedUser(id);
 
     return response({
       res,
@@ -99,12 +89,12 @@ const confirmTransfer = async (req: Request, res: Response) => {
   }
 };
 
-const validateUserNotRegistered = async (userId: number): Promise<void> =>{
+const validateUserNotRegistered = async (userId: number): Promise<void> => {
   try {
     const response = await axios.get(`https://govcarpeta-apis-83e1c996379d.herokuapp.com/apis/validateCitizen/${userId}`);
-    
+
     if (response.status === 200) {
-      throw new Error("User still registered in govCarpeta");
+      throw new Error('User still registered in govCarpeta');
     } else if (response.status === 204) {
       return;
     } else {
@@ -113,7 +103,7 @@ const validateUserNotRegistered = async (userId: number): Promise<void> =>{
   } catch (error) {
     throw new Error(`Error during the request: ${error.message}`);
   }
-}
+};
 
 const documentController = {
   healthcheck,
