@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import response from '../utils/response';
 import transferSchema from '../schemas/transferCitizen';
 import { saveTransferTransaction  } from '../services/index.services';
-import { publishTransferDocuments, publishTransferUser } from '../services/transfer.services';
+import { publishTransferUser } from '../services/transfer.services';
 import { publishConfirmTransferedDocuments, publishConfirmTransferedUser  } from '../services/confirm.services';
 
 const healthcheck = async (_req: Request, res: Response) => {
@@ -36,7 +36,6 @@ const transferCitizen = async (req: Request, res: Response) => {
   }
 
   try {
-    await publishTransferDocuments(doc.transactionId, result.data);
     await publishTransferUser(doc.transactionId, result.data);
 
     return response({
